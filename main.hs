@@ -41,7 +41,11 @@ averageRainfallByName name database = averageOfPlace (placeByName name database)
 
 placesToString :: [Place] -> String
 placesToString [] = []
-placesToString (Place name _ _ rainfall : places) = name ++ "  " ++ listToString rainfall ++ "\n" ++ placesToString places
+placesToString (Place name degNorth degEast rainfall : places) = name ++ "  " ++ show degNorth ++ "  "  ++ show degEast ++ "  " ++ listToString rainfall ++ "\n" ++ placesToString places
+
+placesRainfallToString :: [Place] -> String
+placesRainfallToString [] = []
+placesRainfallToString (Place name _ _ rainfall : places) = name ++ "  " ++ listToString rainfall ++ "\n" ++ placesRainfallToString places
 
 dryPlacesByDay :: Int -> [Place] -> [Place]
 dryPlacesByDay day database = filter (\(Place _ _ _ rainfall) -> rainfall !! (day - 1) == 0) database
@@ -53,6 +57,12 @@ updateRainfalls :: [Place] -> [Int] -> [Place]
 updateRainfalls [] [] = []
 updateRainfalls (place : database) (x : xs) = [updateRainfall place x] ++ (updateRainfalls database xs)
 
+updatePlaceByName :: [Place] -> Place -> String -> [Place]
+updatePlaceByName [] _ _ = []
+updatePlaceByName (Place name degNorth degEast rainfall : places) x find
+    | name == find = [x] ++ (updatePlaceByName places x find)
+    | otherwise = [Place name degNorth degEast rainfall] ++ (updatePlaceByName places x find)
+
 -- Helper functions
 average :: [Int] -> Float
 average xs = fromIntegral (sum xs) / fromIntegral (length xs)
@@ -63,18 +73,17 @@ listToString (x : xs) = show x ++ "  " ++ listToString xs
 
 deleteNthElement :: Int -> [a] -> [a]
 deleteNthElement i (a : as)
-   | i == 0 = as
-   | otherwise = a : deleteNthElement (i - 1) as
+    | i == 0 = as
+    | otherwise = a : deleteNthElement (i - 1) as
 
 --  Demo
 demo :: Int -> IO ()
 demo 1 = putStrLn (placeNames testData)
 demo 2 = putStrLn (printf "%3.2f" (averageRainfallByName "Cardiff" testData))
-demo 3 = putStrLn (placesToString testData)
+demo 3 = putStrLn (placesRainfallToString testData)
 demo 4 = putStrLn (placeNames (dryPlacesByDay 2 testData))
 demo 5 = putStrLn (placesToString (updateRainfalls testData [0,8,0,0,5,0,0,3,4,2,0,8,0,0]))
--- demo 6 = -- replace "Plymouth" with "Portsmouth" which has 
-         -- location 50.8 (N), -1.1 (E) and rainfall 0, 0, 3, 2, 5, 2, 1
+demo 6 = putStrLn (placesToString (updatePlaceByName testData (Place "Portsmouth" 50.8 (-1.1) [0, 0, 3, 2, 5, 2, 1]) "Plymouth"))
 -- demo 7 = -- display the name of the place closest to 50.9 (N), -1.3 (E) 
          -- that was dry yesterday
 -- demo 8 = -- display the rainfall map
