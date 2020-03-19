@@ -2,6 +2,8 @@
 -- Haskell assignment program
 -- UP885013
 
+import Text.Printf
+
 -- Types
 data Place = Place String Float Float [Int]
 
@@ -27,11 +29,24 @@ placeNames :: [Place] -> String
 placeNames [] = []
 placeNames (Place name _ _ _ : places) = name ++ "\n" ++ placeNames places
 
+placeByName :: String -> [Place] -> Place
+placeByName name database = head (filter (\(Place n _ _ _) -> n == name) database)
+
+averageOfPlace :: Place -> Float
+averageOfPlace (Place _ _ _ rainfall) = average rainfall
+
+averageRainfallByName :: String -> [Place] -> Float
+averageRainfallByName name database = averageOfPlace (placeByName name database)
+
+-- Helper functions
+average :: [Int] -> Float
+average xs = fromIntegral (sum xs) / fromIntegral (length xs)
+
 
 --  Demo
 demo :: Int -> IO ()
 demo 1 = putStrLn (placeNames testData)
--- demo 2 = -- display, to two decimal places, the average rainfall in Cardiff
+demo 2 = putStrLn (printf "%3.2f" (averageRainfallByName "Cardiff" testData))
 -- demo 3 = putStrLn (placesToString testData)
 -- demo 4 = -- display the names of all places that were dry two days ago
 -- demo 5 = -- update the data with most recent rainfall 
