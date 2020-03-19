@@ -3,6 +3,7 @@
 -- UP885013
 
 import Text.Printf
+import Data.List
 
 -- Types
 data Place = Place String Float Float [Int]
@@ -43,7 +44,14 @@ placesToString [] = []
 placesToString (Place name _ _ rainfall : places) = name ++ "  " ++ listToString rainfall ++ "\n" ++ placesToString places
 
 dryPlacesByDay :: Int -> [Place] -> [Place]
-dryPlacesByDay day database = filter (\(Place _ _ _ rainfall) -> rainfall!!(day - 1) == 0) database
+dryPlacesByDay day database = filter (\(Place _ _ _ rainfall) -> rainfall !! (day - 1) == 0) database
+
+updateRainfall :: Place -> Int -> Place
+updateRainfall (Place name degNorth degEast rainfall) x = Place name degNorth degEast ([x] ++ (deleteNthElement (length rainfall - 1) rainfall))
+
+updateRainfalls :: [Place] -> [Int] -> [Place]
+updateRainfalls [] [] = []
+updateRainfalls (place : database) (x : xs) = [updateRainfall place x] ++ (updateRainfalls database xs)
 
 -- Helper functions
 average :: [Int] -> Float
@@ -53,6 +61,10 @@ listToString :: [Int] -> String
 listToString [] = []
 listToString (x : xs) = show x ++ "  " ++ listToString xs
 
+deleteNthElement :: Int -> [a] -> [a]
+deleteNthElement i (a : as)
+   | i == 0 = as
+   | otherwise = a : deleteNthElement (i - 1) as
 
 --  Demo
 demo :: Int -> IO ()
@@ -60,8 +72,7 @@ demo 1 = putStrLn (placeNames testData)
 demo 2 = putStrLn (printf "%3.2f" (averageRainfallByName "Cardiff" testData))
 demo 3 = putStrLn (placesToString testData)
 demo 4 = putStrLn (placeNames (dryPlacesByDay 2 testData))
--- demo 5 = -- update the data with most recent rainfall 
-         --[0,8,0,0,5,0,0,3,4,2,0,8,0,0] (and remove oldest rainfall figures)
+demo 5 = putStrLn (placesToString (updateRainfalls testData [0,8,0,0,5,0,0,3,4,2,0,8,0,0]))
 -- demo 6 = -- replace "Plymouth" with "Portsmouth" which has 
          -- location 50.8 (N), -1.1 (E) and rainfall 0, 0, 3, 2, 5, 2, 1
 -- demo 7 = -- display the name of the place closest to 50.9 (N), -1.3 (E) 
