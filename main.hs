@@ -22,11 +22,15 @@ testData = [Place "London"  51.5  (-0.1)  [0, 0, 5, 8, 8, 0, 0],
   Place  "St Helier"  49.2  (-2.1)  [0, 0, 0, 0, 6, 10, 0]]
 
 
+-- All functional code
+placeNames :: [Place] -> String
+placeNames [] = []
+placeNames (Place name _ _ _ : places) = name ++ "\n" ++ placeNames places
 
 
 --  Demo
--- demo :: Int -> IO ()
--- demo 1 = -- display the names of all the places
+demo :: Int -> IO ()
+demo 1 = putStrLn (placeNames testData)
 -- demo 2 = -- display, to two decimal places, the average rainfall in Cardiff
 -- demo 3 = putStrLn (placesToString testData)
 -- demo 4 = -- display the names of all places that were dry two days ago
