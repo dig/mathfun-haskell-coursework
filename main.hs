@@ -40,12 +40,15 @@ averageRainfallByName name database = averageOfPlace (placeByName name database)
 
 placesToString :: [Place] -> String
 placesToString [] = []
-placesToString (Place name _ _ rainfall : places) = name ++ "  " ++ show rainfall ++ "\n" ++ placesToString places
+placesToString (Place name _ _ rainfall : places) = name ++ "  " ++ listToString rainfall ++ "\n" ++ placesToString places
 
 -- Helper functions
 average :: [Int] -> Float
 average xs = fromIntegral (sum xs) / fromIntegral (length xs)
 
+listToString :: [Int] -> String
+listToString [] = []
+listToString (x : xs) = show x ++ "  " ++ listToString xs
 
 --  Demo
 demo :: Int -> IO ()
