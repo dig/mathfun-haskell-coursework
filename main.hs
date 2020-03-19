@@ -38,6 +38,10 @@ averageOfPlace (Place _ _ _ rainfall) = average rainfall
 averageRainfallByName :: String -> [Place] -> Float
 averageRainfallByName name database = averageOfPlace (placeByName name database)
 
+placesToString :: [Place] -> String
+placesToString [] = []
+placesToString (Place name _ _ rainfall : places) = name ++ "  " ++ show rainfall ++ "\n" ++ placesToString places
+
 -- Helper functions
 average :: [Int] -> Float
 average xs = fromIntegral (sum xs) / fromIntegral (length xs)
@@ -47,7 +51,7 @@ average xs = fromIntegral (sum xs) / fromIntegral (length xs)
 demo :: Int -> IO ()
 demo 1 = putStrLn (placeNames testData)
 demo 2 = putStrLn (printf "%3.2f" (averageRainfallByName "Cardiff" testData))
--- demo 3 = putStrLn (placesToString testData)
+demo 3 = putStrLn (placesToString testData)
 -- demo 4 = -- display the names of all places that were dry two days ago
 -- demo 5 = -- update the data with most recent rainfall 
          --[0,8,0,0,5,0,0,3,4,2,0,8,0,0] (and remove oldest rainfall figures)
