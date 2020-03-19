@@ -42,6 +42,9 @@ placesToString :: [Place] -> String
 placesToString [] = []
 placesToString (Place name _ _ rainfall : places) = name ++ "  " ++ listToString rainfall ++ "\n" ++ placesToString places
 
+dryPlacesByDay :: Int -> [Place] -> [Place]
+dryPlacesByDay day database = filter (\(Place _ _ _ rainfall) -> rainfall!!(day - 1) == 0) database
+
 -- Helper functions
 average :: [Int] -> Float
 average xs = fromIntegral (sum xs) / fromIntegral (length xs)
@@ -50,12 +53,13 @@ listToString :: [Int] -> String
 listToString [] = []
 listToString (x : xs) = show x ++ "  " ++ listToString xs
 
+
 --  Demo
 demo :: Int -> IO ()
 demo 1 = putStrLn (placeNames testData)
 demo 2 = putStrLn (printf "%3.2f" (averageRainfallByName "Cardiff" testData))
 demo 3 = putStrLn (placesToString testData)
--- demo 4 = -- display the names of all places that were dry two days ago
+demo 4 = putStrLn (placeNames (dryPlacesByDay 2 testData))
 -- demo 5 = -- update the data with most recent rainfall 
          --[0,8,0,0,5,0,0,3,4,2,0,8,0,0] (and remove oldest rainfall figures)
 -- demo 6 = -- replace "Plymouth" with "Portsmouth" which has 
@@ -65,11 +69,9 @@ demo 3 = putStrLn (placesToString testData)
 -- demo 8 = -- display the rainfall map
 
 
---
+
 -- Screen Utilities (use these to do the rainfall map - note that these do 
 -- not work in WinGHCi on Windows, so use GHCi.)
---
-
 type ScreenPosition = (Int,Int)
 
 -- Clears the screen
