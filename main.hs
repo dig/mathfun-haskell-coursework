@@ -4,6 +4,7 @@
 
 import Text.Printf
 import Data.List
+import System.Directory
 
 -- Types
 type LatLong = (Float, Float)
@@ -11,7 +12,7 @@ data Place = Place
   { name :: String
   , latLong :: LatLong
   , rainfall :: [Int]
-  } deriving (Show)
+  } deriving (Show, Read)
 
 testData :: [Place]
 testData = [Place "London"  (51.5, -0.1)  [0, 0, 5, 8, 8, 0, 0],
@@ -129,7 +130,7 @@ demo 7 = putStrLn (placeToString (fst closestPlace))
         closestPlace = findClosestPlace (50.9, -1.3) dryPlaces
 
 -- demo 8 = -- display the rainfall map
-
+demo _ = putStrLn "Invalid demo."
 
 
 -- Screen Utilities (use these to do the rainfall map - note that these do 
@@ -160,9 +161,25 @@ writeAt position text = do
 -- User interface (and loading/saving)
 main :: IO ()
 main = do
+  fileExists <- doesFileExist "places.txt"
+  if (fileExists) then do
+    tmp <- readFile "places.txt"
+    let places = read tmp :: [Place]
+    putStrLn $ "Loaded " ++ show (length places) ++ " places from places.txt"
+    menu places
+  else do
+    putStrLn $ "Using testData since places.txt does not exist."
+    menu testData
+
+save :: [Place] -> IO ()
+save places = writeFile "places.txt" (show places)
+
+-- Menu, will be constantly looped after each option.
+menu :: [Place] -> IO ()
+menu places = do
   putStrLn ""
   putStrLn "Please enter a option below:"
-  
+
   putStrLn " 1 - List all places."
   putStrLn " 2 - Show average rainfall for Cardiff."
   putStrLn " 3 - List all places and rainfall values as columns."
@@ -170,24 +187,53 @@ main = do
   putStrLn " 5 - Add new rainfall values to all places."
   putStrLn " 6 - Replace Plymouth with Portsmouth."
   putStrLn " 7 - Find closest place to 50.9 N, -1.3 E."
+  putStrLn " 0 - Save & Exit application."
   putStrLn ""
 
   putStr "Input: "
-  option <- getLine
+  choice <- getLine
 
   putStrLn ""
-  case option of
-    "1" -> demo 1
-    "2" -> demo 2
-    "3" -> demo 3
-    "4" -> demo 4
-    "5" -> demo 5
-    "6" -> demo 6
-    "7" -> demo 7
-    _ -> putStrLn "Invalid option, please try again."
+  option choice places
 
+-- Called after menu options to return to menu.
+returnMenu :: [Place] -> IO ()
+returnMenu places = do
   putStrLn ""
   putStr "Press Enter to return to menu."
   _ <- getLine
+  menu places
 
-  main
+-- Menu options
+option :: String -> [Place] -> IO ()
+option "1" places = do
+  demo 1
+  returnMenu places
+option "2" places = do
+  demo 2
+  returnMenu places
+option "3" places = do
+  demo 3
+  returnMenu places
+option "4" places = do
+  demo 4
+  returnMenu places
+option "5" places = do
+  demo 5
+  returnMenu places
+option "6" places = do
+  demo 6
+  returnMenu places
+option "7" places = do
+  demo 7
+  returnMenu places
+
+-- Exit & save
+option "0" places = do
+  save places
+  putStrLn "Saved to places.txt"
+
+-- Invalid menu option
+option _ places = do
+  putStrLn "Invalid option, please try again."
+  returnMenu places
