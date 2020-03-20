@@ -40,11 +40,8 @@ placeNames (Place name _ _ : places)
 placeByName :: String -> [Place] -> Place
 placeByName name places = head (filter (\(Place n _ _) -> n == name) places)
 
-averageOfPlace :: Place -> Float
-averageOfPlace (Place _ _ rainfall) = average rainfall
-
 averageRainfallByName :: String -> [Place] -> Float
-averageRainfallByName name places = averageOfPlace (placeByName name places)
+averageRainfallByName name places = average (rainfall (placeByName name places))
 
 placeToString :: Place -> String
 placeToString (Place name (lat, long) rainfall) = name ++ "  " ++ show lat ++ "  "  ++ show long ++ "  " ++ listToString rainfall
