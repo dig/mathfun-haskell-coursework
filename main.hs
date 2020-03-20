@@ -9,8 +9,8 @@ import Data.List
 type LatLong = (Float, Float)
 data Place = Place
   { name :: String
-  , latLong    :: LatLong
-  , rainfall    :: [Int]
+  , latLong :: LatLong
+  , rainfall :: [Int]
   } deriving (Show)
 
 testData :: [Place]
@@ -157,7 +157,37 @@ writeAt position text = do
 
 
 
---
--- Your user interface (and loading/saving) code goes here
---
- 
+-- User interface (and loading/saving)
+main :: IO ()
+main = do
+  putStrLn ""
+  putStrLn "Please enter a option below:"
+  
+  putStrLn " 1 - List all places."
+  putStrLn " 2 - Show average rainfall for Cardiff."
+  putStrLn " 3 - List all places and rainfall values as columns."
+  putStrLn " 4 - List all places that were dry 2 days ago."
+  putStrLn " 5 - Add new rainfall values to all places."
+  putStrLn " 6 - Replace Plymouth with Portsmouth."
+  putStrLn " 7 - Find closest place to 50.9 N, -1.3 E."
+  putStrLn ""
+
+  putStr "Input: "
+  option <- getLine
+
+  putStrLn ""
+  case option of
+    "1" -> demo 1
+    "2" -> demo 2
+    "3" -> demo 3
+    "4" -> demo 4
+    "5" -> demo 5
+    "6" -> demo 6
+    "7" -> demo 7
+    _ -> putStrLn "Invalid option, please try again."
+
+  putStrLn ""
+  putStr "Press Enter to return to menu."
+  _ <- getLine
+
+  main
