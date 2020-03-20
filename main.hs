@@ -7,8 +7,11 @@ import Data.List
 
 -- Types
 type LatLong = (Float, Float)
-data Place = Place String LatLong [Int]
-    deriving (Show)
+data Place = Place
+  { name :: String
+  , latLong    :: LatLong
+  , rainfall    :: [Int]
+  } deriving (Show)
 
 testData :: [Place]
 testData = [Place "London"  (51.5, -0.1)  [0, 0, 5, 8, 8, 0, 0],
