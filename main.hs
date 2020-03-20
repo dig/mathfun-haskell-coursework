@@ -6,62 +6,85 @@ import Text.Printf
 import Data.List
 
 -- Types
-data Place = Place String Float Float [Int]
+type LatLong = (Float, Float)
+data Place = Place String LatLong [Int]
+    deriving (Show)
 
 testData :: [Place]
-testData = [Place "London"  51.5  (-0.1)  [0, 0, 5, 8, 8, 0, 0],
-  Place  "Cardiff"  51.5  (-3.2)  [12, 8, 15, 0, 0, 0, 2],
-  Place  "Norwich"  52.6  1.3  [0, 6, 5, 0, 0, 0, 3],
-  Place  "Birmingham"  52.5  (-1.9)  [0, 2, 10, 7, 8, 2, 2],
-  Place  "Liverpool"  53.4  (-3.0)  [8, 16, 20, 3, 4, 9, 2],
-  Place  "Hull"  53.8  (-0.3)  [0, 6, 5, 0, 0, 0, 4],
-  Place  "Newcastle"  55.0  (-1.6)  [0, 0, 8, 3, 6, 7, 5],
-  Place  "Belfast"  54.6  (-5.9)  [10, 18, 14, 0, 6, 5, 2],
-  Place  "Glasgow"  55.9  (-4.3)  [7, 5, 3, 0, 6, 5, 0],
-  Place  "Plymouth"  50.4  (-4.1)  [4, 9, 0, 0, 0, 6, 5],
-  Place  "Aberdeen"  57.1  (-2.1)  [0, 0, 6, 5, 8, 2, 0],
-  Place  "Stornoway"  58.2  (-6.4)  [15, 6, 15, 0, 0, 4, 2],
-  Place  "Lerwick"  60.2  (-1.1)  [8, 10, 5, 5, 0, 0, 3],
-  Place  "St Helier"  49.2  (-2.1)  [0, 0, 0, 0, 6, 10, 0]]
+testData = [Place "London"  (51.5, -0.1)  [0, 0, 5, 8, 8, 0, 0],
+  Place  "Cardiff"  (51.5, -3.2)  [12, 8, 15, 0, 0, 0, 2],
+  Place  "Norwich"  (52.6, 1.3)  [0, 6, 5, 0, 0, 0, 3],
+  Place  "Birmingham"  (52.5, -1.9)  [0, 2, 10, 7, 8, 2, 2],
+  Place  "Liverpool"  (53.4, -3.0)  [8, 16, 20, 3, 4, 9, 2],
+  Place  "Hull"  (53.8, -0.3)  [0, 6, 5, 0, 0, 0, 4],
+  Place  "Newcastle"  (55.0, -1.6)  [0, 0, 8, 3, 6, 7, 5],
+  Place  "Belfast"  (54.6, -5.9)  [10, 18, 14, 0, 6, 5, 2],
+  Place  "Glasgow"  (55.9, -4.3)  [7, 5, 3, 0, 6, 5, 0],
+  Place  "Plymouth"  (50.4, -4.1)  [4, 9, 0, 0, 0, 6, 5],
+  Place  "Aberdeen"  (57.1, -2.1)  [0, 0, 6, 5, 8, 2, 0],
+  Place  "Stornoway"  (58.2, -6.4)  [15, 6, 15, 0, 0, 4, 2],
+  Place  "Lerwick"  (60.2, -1.1)  [8, 10, 5, 5, 0, 0, 3],
+  Place  "St Helier"  (49.2, -2.1)  [0, 0, 0, 0, 6, 10, 0]]
 
 
 -- All functional code
 placeNames :: [Place] -> String
 placeNames [] = []
-placeNames (Place name _ _ _ : places) = name ++ "\n" ++ placeNames places
+placeNames (Place name _ _ : places)
+    | length places == 0 = name
+    | otherwise = name ++ "\n" ++ placeNames places
 
 placeByName :: String -> [Place] -> Place
-placeByName name database = head (filter (\(Place n _ _ _) -> n == name) database)
+placeByName name places = head (filter (\(Place n _ _) -> n == name) places)
 
 averageOfPlace :: Place -> Float
-averageOfPlace (Place _ _ _ rainfall) = average rainfall
+averageOfPlace (Place _ _ rainfall) = average rainfall
 
 averageRainfallByName :: String -> [Place] -> Float
-averageRainfallByName name database = averageOfPlace (placeByName name database)
+averageRainfallByName name places = averageOfPlace (placeByName name places)
+
+placeToString :: Place -> String
+placeToString (Place name (lat, long) rainfall) = name ++ "  " ++ show lat ++ "  "  ++ show long ++ "  " ++ listToString rainfall
 
 placesToString :: [Place] -> String
 placesToString [] = []
-placesToString (Place name degNorth degEast rainfall : places) = name ++ "  " ++ show degNorth ++ "  "  ++ show degEast ++ "  " ++ listToString rainfall ++ "\n" ++ placesToString places
+placesToString (place : places)
+    | length places == 0 = placeToString place
+    | otherwise = placeToString place ++ "\n" ++ placesToString places
 
 placesRainfallToString :: [Place] -> String
 placesRainfallToString [] = []
-placesRainfallToString (Place name _ _ rainfall : places) = name ++ "  " ++ listToString rainfall ++ "\n" ++ placesRainfallToString places
+placesRainfallToString (Place name _ rainfall : places)
+    | length places == 0 = name ++ "  " ++ listToString rainfall
+    | otherwise = name ++ "  " ++ listToString rainfall ++ "\n" ++ placesRainfallToString places
 
 dryPlacesByDay :: Int -> [Place] -> [Place]
-dryPlacesByDay day database = filter (\(Place _ _ _ rainfall) -> rainfall !! (day - 1) == 0) database
+dryPlacesByDay day places = filter (\(Place _ _ rainfall) -> rainfall !! (day - 1) == 0) places
 
 updateRainfall :: Place -> Int -> Place
-updateRainfall (Place name degNorth degEast rainfall) x = Place name degNorth degEast ([x] ++ (deleteNthElement (length rainfall - 1) rainfall))
+updateRainfall (Place name (lat, long) rainfall) x = Place name (lat, long) ([x] ++ (deleteNthElement (length rainfall - 1) rainfall))
 
 updateRainfalls :: [Int] -> [Place] -> [Place]
 updateRainfalls [] [] = []
-updateRainfalls (x : xs) (place : database) = [updateRainfall place x] ++ (updateRainfalls xs database)
+updateRainfalls (x : xs) (place : places) = [updateRainfall place x] ++ (updateRainfalls xs places)
 
 updatePlaceByName :: Place -> String -> [Place] -> [Place]
 updatePlaceByName _ _ [] = []
-updatePlaceByName x find (Place name degNorth degEast rainfall : places)
+updatePlaceByName x find (Place name (lat, long) rainfall : places)
     | name == find = [x] ++ (updatePlaceByName x find places)
-    | otherwise = [Place name degNorth degEast rainfall] ++ (updatePlaceByName x find places)
+    | otherwise = [Place name (lat, long) rainfall] ++ (updatePlaceByName x find places)
+
+findDistances :: LatLong -> [Place] -> [(Place, Float)]
+findDistances latLong places = auxFindDistance latLong places []
+
+auxFindDistance :: LatLong -> [Place] -> [(Place, Float)] -> [(Place, Float)]
+auxFindDistance _ [] distsSoFar = distsSoFar
+auxFindDistance (lat, long) (Place n (x, y) r : places) distsSoFar = auxFindDistance (lat, long) places ((distPlace, distFloat) : distsSoFar) 
+  where (distPlace, distFloat) = (Place n (x, y) r, distance (lat, long) (x, y))
+
+findClosestPlace :: LatLong -> [Place] -> (Place, Float)
+findClosestPlace (lat, long) places = head (sortBy sortByDistance relativeDistances)
+  where relativeDistances = (findDistances (lat, long) places)
 
 -- Helper functions
 average :: [Int] -> Float
@@ -76,17 +99,35 @@ deleteNthElement i (a : as)
     | i == 0 = as
     | otherwise = a : deleteNthElement (i - 1) as
 
+distance :: LatLong -> LatLong -> Float
+distance (x, y) (x1, y1) = pythagoreanTheorem (x - x1) (y - y1)
+
+pythagoreanTheorem :: Float -> Float -> Float
+pythagoreanTheorem x y = sqrt (x * x + y * y)
+
+sortByDistance (a1, b1) (a2, b2)
+  | b1 > b2 = GT
+  | b1 <= b2 = LT
 
 --  Demo
 demo :: Int -> IO ()
 demo 1 = putStrLn (placeNames testData)
 demo 2 = putStrLn (printf "%3.2f" (averageRainfallByName "Cardiff" testData))
 demo 3 = putStrLn (placesRainfallToString testData)
-demo 4 = putStrLn (placeNames (dryPlacesByDay 2 testData))
-demo 5 = putStrLn (placesToString (updateRainfalls [0, 8, 0, 0, 5, 0, 0, 3, 4, 2, 0, 8, 0, 0] testData))
-demo 6 = putStrLn (placesToString (updatePlaceByName (Place "Portsmouth" 50.8 (-1.1) [0, 0, 3, 2, 5, 2, 1]) "Plymouth" testData))
--- demo 7 = -- display the name of the place closest to 50.9 (N), -1.3 (E) 
-         -- that was dry yesterday
+
+demo 4 = putStrLn (placeNames dryPlaces)
+  where dryPlaces = dryPlacesByDay 2 testData
+
+demo 5 = putStrLn (placesToString (updateRainfalls rainfallValues testData))
+  where rainfallValues = [0, 8, 0, 0, 5, 0, 0, 3, 4, 2, 0, 8, 0, 0]
+
+demo 6 = putStrLn (placesToString (updatePlaceByName newPlace "Plymouth" testData))
+  where newPlace = Place "Portsmouth" (50.8, -1.1) [0, 0, 3, 2, 5, 2, 1]
+
+demo 7 = putStrLn (placeToString (fst closestPlace))
+  where dryPlaces = dryPlacesByDay 1 testData
+        closestPlace = findClosestPlace (50.9, -1.3) dryPlaces
+
 -- demo 8 = -- display the rainfall map
 
 
