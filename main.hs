@@ -81,9 +81,9 @@ findDistances :: LatLong -> [Place] -> [(Place, Float)]
 findDistances latLong places = auxFindDistance latLong places []
 
 auxFindDistance :: LatLong -> [Place] -> [(Place, Float)] -> [(Place, Float)]
-auxFindDistance _ [] distsSoFar = distsSoFar
-auxFindDistance (lat, long) (Place n (x, y) r : places) distsSoFar = auxFindDistance (lat, long) places ((distPlace, distFloat) : distsSoFar) 
-  where (distPlace, distFloat) = (Place n (x, y) r, distance (lat, long) (x, y))
+auxFindDistance _ [] dists = dists
+auxFindDistance (lat, long) (place : places) dists = auxFindDistance (lat, long) places ((distPlace, distFloat) : dists) 
+  where (distPlace, distFloat) = (place, distance (lat, long) (latLong place))
 
 findClosestPlace :: LatLong -> [Place] -> (Place, Float)
 findClosestPlace (lat, long) places = head (sortBy sortByDistance relativeDistances)
