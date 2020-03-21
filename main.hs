@@ -207,25 +207,25 @@ returnMenu places = do
 -- Menu options
 option :: String -> [Place] -> IO ()
 option "1" places = do
-  demo 1
+  putStrLn (placeNames places)
   returnMenu places
 option "2" places = do
-  demo 2
+  putStrLn (printf "%3.2f" (averageRainfallByName "Cardiff" places))
   returnMenu places
 option "3" places = do
-  demo 3
+  putStrLn (placesRainfallToString places)
   returnMenu places
 option "4" places = do
-  demo 4
+  putStrLn (placeNames (dryPlacesByDay 2 places))
   returnMenu places
 option "5" places = do
-  demo 5
+  putStrLn (placesToString (updateRainfalls [0, 8, 0, 0, 5, 0, 0, 3, 4, 2, 0, 8, 0, 0] places))
   returnMenu places
 option "6" places = do
-  demo 6
+  putStrLn (placesToString (updatePlaceByName (Place "Portsmouth" (50.8, -1.1) [0, 0, 3, 2, 5, 2, 1]) "Plymouth" places))
   returnMenu places
 option "7" places = do
-  demo 7
+  putStrLn (placeToString (fst (findClosestPlace (50.9, -1.3) (dryPlacesByDay 1 places))))
   returnMenu places
 
 -- Exit & save
